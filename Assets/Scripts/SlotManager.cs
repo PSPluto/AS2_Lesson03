@@ -12,6 +12,11 @@ public class SlotManager : MonoBehaviour
     [SerializeField] private ScriptableObject[] hitTable;
     [SerializeField] private GameObject[] rilleObjects;
 
+    public AudioSource audioSource;
+    [SerializeField]private AudioClip leverSound;
+    [SerializeField]private AudioClip startSound;
+    [SerializeField]private AudioClip stopSound;
+
     void Start()
     {
         StartCoroutine(SlotUpdate());
@@ -24,10 +29,15 @@ public class SlotManager : MonoBehaviour
             {
                 rilleStartIndex++;
                 rilleStartIndex = Mathf.Clamp(rilleStartIndex, 0, rille.GetLength(1));
+                audioSource.PlayOneShot(stopSound);
             }
             else
             {
                 StartCoroutine(SlotUpdate());
+                audioSource.PlayOneShot(leverSound);
+                // 前回当たってなったらコレ
+                //audioSource.PlayOneShot(startSound);
+                // 当たってたらもっと明るいやつ鳴らす
             }
 
 
@@ -52,7 +62,7 @@ public class SlotManager : MonoBehaviour
         for (int j = 0; j < rille.GetLength(1); j++)
         {
             rilleAngle[j] = (360 / rille.GetLength(0)) * rille[1, j];
-            rilleObjects[j].transform.rotation = Quaternion.Lerp(rilleObjects[j].transform.rotation, Quaternion.Euler(rilleAngle[j], 0, 0), 0.05f);
+            rilleObjects[j].transform.rotation = Quaternion.Lerp(rilleObjects[j].transform.rotation, Quaternion.Euler(rilleAngle[j], 0, 0), 0.1f);
         }
     }
 
@@ -62,7 +72,6 @@ public class SlotManager : MonoBehaviour
         rilleStartIndex = 0;
         rille = new int[,]
         {
-            {0, 0, 0},
             {1, 1, 1},
             {2, 2, 2},
             {3, 3, 3},
@@ -97,18 +106,7 @@ public class SlotManager : MonoBehaviour
             rille[0, line] = temp;
         }
     }
-    public int[] GetRow(int[,] sourceArray, int rowIndex)
-    {
-        int colCount = sourceArray.GetLength(1);
-        int[] result = new int[colCount];
 
-        for (int i = 0; i < colCount; i++)
-        {
-            result[i] = sourceArray[rowIndex, i];
-        }
-
-        return result;
-    }
 
     IEnumerator SlotUpdate()
     {
@@ -117,10 +115,10 @@ public class SlotManager : MonoBehaviour
         while (true)
         {
             PlayingSlot();
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.05f);
             if (rilleStartIndex == rille.GetLength(1))
             {
-                Debug.Log(string.Join(", ", GetRow(rille, 1)));
+                Debug.Log(string.Join(", ", ProjectUtility.GetRow(rille, 1)));
                 Debug.Log(PatternCheck(rille));
                 isplayingSlot = false;
                 yield break;
@@ -129,23 +127,12 @@ public class SlotManager : MonoBehaviour
     }
     private int PatternCheck(int[,] slot)
     {
-        // 繰り返す
+        int resultScore = 0;
+        // テーブル分繰り返す
         foreach (BaseHittable obj in hitTable)
         {
-            Debug.Log(string.Join(", ", GetRow(slot, 1)));
-            Debug.Log(string.Join(", ", obj.hitPattern));
-            // 同じかどうかの判定
-            for (int n = 0; n < slot.GetLength(1); n++)
-            {
-                if (obj.hitPattern[n] != GetRow(slot, 1)[n])
-                {
-                    continue;
-                }
-            }
-
-            Debug.Log("!!");
-            return obj.score;
+              resultScore += obj.checkPattern(slot);
         }
-        return 0;
+        return resultScore;
     }
 }

@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f35fc8d517d069545b2298632cb4ac14, type: 3}
-  m_Name: 222
-  m_EditorClassIdentifier: Assembly-CSharp::BaseHittable
-  hitPattern: 020000000200000002000000
+  m_Script: {fileID: 11500000, guid: d9df6c9fd329ab84985aba970a643493, type: 3}
+  m_Name: UpDouble
+  m_EditorClassIdentifier: Assembly-CSharp::DoubleNumbersPattern
   score: 200
+  rowIndex: 1
