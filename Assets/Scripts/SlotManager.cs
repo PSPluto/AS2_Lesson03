@@ -17,6 +17,8 @@ public class SlotManager : MonoBehaviour
     [SerializeField]private AudioClip startSound;
     [SerializeField]private AudioClip stopSound;
 
+    [SerializeField]private float rotationInterval = 0.05f;
+
     void Start()
     {
         StartCoroutine(SlotUpdate());
@@ -62,7 +64,7 @@ public class SlotManager : MonoBehaviour
         for (int j = 0; j < rille.GetLength(1); j++)
         {
             rilleAngle[j] = (360 / rille.GetLength(0)) * rille[1, j];
-            rilleObjects[j].transform.rotation = Quaternion.Lerp(rilleObjects[j].transform.rotation, Quaternion.Euler(rilleAngle[j], 0, 0), 0.1f);
+            rilleObjects[j].transform.rotation = Quaternion.Lerp(rilleObjects[j].transform.rotation, Quaternion.Euler(rilleAngle[j], 0, 0), rotationInterval*2);
         }
     }
 
@@ -115,7 +117,7 @@ public class SlotManager : MonoBehaviour
         while (true)
         {
             PlayingSlot();
-            yield return new WaitForSeconds(0.05f);
+            yield return new WaitForSeconds(rotationInterval);
             if (rilleStartIndex == rille.GetLength(1))
             {
                 Debug.Log(string.Join(", ", ProjectUtility.GetRow(rille, 1)));
